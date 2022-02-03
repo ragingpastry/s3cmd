@@ -319,13 +319,17 @@ class Config(object):
                     for k, v in params.items()
                 ])
                 sts_endpoint = "sts.amazonaws.com"
+
+                region = os.environ.get("AWS_REGION")
                 if os.environ.get("AWS_STS_REGIONAL_ENDPOINTS") == "regional": 
                     # Check if the AWS_REGION variable is available to use as a region. 
-                    region = os.environ.get("AWS_REGION")
                     if not region: 
                         # Otherwise use the bucket location
                         region = self.bucket_location
                     sts_endpoint = "sts.%s.amazonaws.com" % region 
+                elif "us-gov" in region:
+                    sts_endpoint = "sts.%s.amazonaws.com" % region
+
                 conn = httplib.HTTPSConnection(host=sts_endpoint,
                                                timeout=2)
                 conn.request('POST', '/?' + encoded_params)
